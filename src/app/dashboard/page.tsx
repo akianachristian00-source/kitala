@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { formatFCFA } from '@/lib/utils';
+import { OrderStatusActions } from '@/components/dashboard/order-status-actions';
 import type { Order } from '@/types';
 
 const BADGE: Record<string, string> = { nouvelle: 'bg-amber-100 text-amber-900', confirmee: 'bg-sky-100 text-sky-900', expediee: 'bg-indigo-100 text-indigo-900', livree: 'bg-emerald-100 text-emerald-900', annulee: 'bg-neutral-200 text-neutral-700' };
@@ -22,6 +23,7 @@ export default async function OrdersPage() {
           <p className="text-sm text-neutral-600">{o.client_telephone} · {o.client_quartier}</p>
           <p className="mt-2 text-sm">{o.order_items.map((i) => `${i.quantite} × ${i.nom_produit}`).join(', ')}</p>
           <p className="mt-1 font-semibold">{formatFCFA(o.montant_total)}</p>
+          <OrderStatusActions orderId={o.id} statut={o.statut} />
         </article>
       ))}
     </section>
