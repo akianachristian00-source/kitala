@@ -1,5 +1,7 @@
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+
+type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 // Ne s'exécute QUE sur /dashboard : les vitrines restent statiques/ISR (ultra-rapides, sans cookies).
 export async function middleware(request: NextRequest) {
@@ -7,7 +9,7 @@ export async function middleware(request: NextRequest) {
   const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     cookies: {
       getAll: () => request.cookies.getAll(),
-      setAll(list) {
+      setAll(list: CookieToSet[]) {
         list.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
         list.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
