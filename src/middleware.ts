@@ -18,6 +18,13 @@ export async function middleware(request: NextRequest) {
   });
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.redirect(new URL('/login', request.url));
+
+  // Double authentification activée par le marchand : mot de passe seul (aal1) = pas d'accès au tableau de bord.
+  // (La base de données applique la même règle : voir 0004_mfa_enforcement.sql.)
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aal && aal.nextLevel === 'aal2' && aal.currentLevel !== 'aal2') {
+    return NextResponse.redirect(new URL('/login?etape=2fa', request.url));
+  }
   return response;
 }
 export const config = { matcher: ['/dashboard/:path*'] };

@@ -19,6 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Link className={link} href="/dashboard">Commandes</Link>
           <Link className={link} href="/dashboard/produits">Produits</Link>
           <Link className={link} href="/dashboard/personnaliser">Personnaliser</Link>
+          <Link className={link} href="/dashboard/securite">Sécurité</Link>
           <Link className={`${link} ml-auto shrink-0`} href={`/boutique/${store.slug}`} target="_blank">Voir ma boutique</Link>
           <form action={signOutAction}><button className={`${link} shrink-0`}>Déconnexion</button></form>
         </div>
