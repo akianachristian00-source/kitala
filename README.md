@@ -15,4 +15,4 @@
 ## Avant la mise en production
 - Limiter le débit de `createOrderAction` (Upstash Ratelimit / Turnstile) contre le spam
 - Vérifier un domaine d'envoi Resend (SPF/DKIM)
-- Ajouter la mise à jour des statuts de commande et le paiement Mobile Money (MTN MoMo / Airtel Money)
+- Ajouter la mise à jour des statuts de commande (le paiement se règle directement avec le marchand, via WhatsApp)

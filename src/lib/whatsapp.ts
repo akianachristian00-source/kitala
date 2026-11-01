@@ -18,7 +18,7 @@ export function buildWhatsAppUrl(p: {
     `Téléphone : ${p.client.telephone}`,
     `Quartier de livraison : ${p.client.quartier}`,
     '',
-    'Paiement : Mobile Money ou à la livraison. Merci de confirmer la disponibilité.',
+    'Merci de confirmer la disponibilité et le mode de paiement.',
   ].join('\n');
   return `https://wa.me/${toWaNumber(p.whatsapp)}?text=${encodeURIComponent(text)}`;
 }

@@ -17,7 +17,7 @@ const getStore = cache(async (slug: string) => {
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const store = await getStore(params.slug);
   if (!store) return { title: 'Boutique introuvable' };
-  return { title: store.nom, description: `Commandez chez ${store.nom} et payez à la livraison ou par Mobile Money.`, openGraph: { title: store.nom, type: 'website' } };
+  return { title: store.nom, description: `Commandez chez ${store.nom} en quelques clics, confirmation sur WhatsApp.`, openGraph: { title: store.nom, type: 'website' } };
 }
 
 export default async function BoutiquePage({ params }: { params: { slug: string } }) {
