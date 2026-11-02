@@ -221,3 +221,4 @@ form.f{display:grid;gap:16px}
 .f input,.f textarea,.f select{padding:12px 14px;border:var(--b);border-radius:12px;font:inherit;background:#fff}
 .f textarea{min-height:130px;resize:vertical}
 .note{font-size:.9rem;opacity:.75}
+.plan p{min-height:3.4em}
