@@ -5,7 +5,7 @@ window.KITALA = {
   // Numéro WhatsApp de Kitala, avec l'indicatif et sans « + » ni espaces.
   // Exemple : "242060000000". Tant qu'il est vide, les boutons WhatsApp
   // renvoient vers la page Contact.
-  whatsapp: "",
+  whatsapp: "242064035691",
 
   // Adresse de l'application (là où les commerçants créent leur boutique).
   app: "https://kitala-delta.vercel.app",
