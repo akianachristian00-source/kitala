@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact — Kitala</title>
+<meta name="description" content="Contactez Kitala sur WhatsApp pour une question, une aide ou pour démarrer votre boutique.">
+<meta name="theme-color" content="#10173F">
+<meta property="og:title" content="Contact — Kitala">
+<meta property="og:description" content="Contactez Kitala sur WhatsApp pour une question, une aide ou pour démarrer votre boutique.">
+<meta property="og:image" content="images/kitala-photo-01-couturiere-atelier.webp">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23E8315B'/%3E%3Cpath d='M10 7v18M23 7L12 16l11 9' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+<header class="top">
+ <div class="wrap nav">
+  <a class="logo" href="index.html" aria-label="Kitala, accueil"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4L8 12l10 8"/></svg></i>kitala</a>
+  <button class="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu"><span></span></button>
+  <ul id="menu"><li><a href="index.html">Accueil</a></li><li><a href="fonctionnalites.html">Fonctionnalités</a></li><li><a href="tarifs.html">Tarifs</a></li><li><a href="exemples.html">Exemples</a></li><li><a href="a-propos.html">À propos</a></li><li><a href="aide.html">Aide</a></li><li><a href="contact.html" aria-current="page">Contact</a></li><li class="mobile-cta"><a class="btn rose sm" data-cta href="#">Créer ma boutique</a></li></ul>
+  <a class="btn rose sm" data-cta href="#">Créer ma boutique</a>
+ </div>
+</header>
+<main>
+
+<section class="pagehead wax-soft"><div class="wrap"><span class="kicker">Contact</span><h1>Parlons de votre boutique</h1><p class="lead">Une question, une idée, besoin d'aide pour démarrer ? Écrivez-nous sur WhatsApp.</p></div></section>
+<section><div class="wrap demo" style="align-items:start">
+ <div class="card">
+  <h2 style="font-size:1.6rem">Envoyer un message</h2>
+  <form class="f" id="contact-form">
+   <label>Votre nom<input name="nom" required autocomplete="name"></label>
+   <label>Votre quartier<select name="quartier"><option value="">Choisir</option><option>Poto-Poto</option><option>Bacongo</option><option>Moungali</option><option>Ouenzé</option><option>Talangaï</option><option>Makélékélé</option><option>Mfilou</option><option>Madibou</option><option>Djiri</option><option>Autre</option></select></label>
+   <label>Sujet<select name="sujet"><option>Créer ma boutique</option><option>Les offres</option><option>Un problème</option><option>Autre</option></select></label>
+   <label>Votre message<textarea name="message" required></textarea></label>
+   <button class="btn vert" type="submit">Envoyer sur WhatsApp</button>
+   <p id="wa-info" class="note hidden">Le contact WhatsApp sera bientôt disponible. Revenez très vite.</p>
+  </form>
+ </div>
+ <div class="grid">
+  <div class="card"><div class="ico c-vert" style="color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg></div><h3>WhatsApp</h3><p>Le moyen le plus rapide de nous joindre.</p><a class="btn vert sm" data-wa="Bonjour Kitala, j'ai une question." href="contact.html">Écrire sur WhatsApp</a></div>
+  <div class="photo" style="aspect-ratio:3/2"><img src="images/kitala-photo-04-vendeuse-alimentation.webp" alt="Une vendeuse de fruits et légumes sourit avec son téléphone devant son étal" loading="lazy" decoding="async"></div>
+ </div>
+</div></section>
+
+</main>
+<footer>
+ <div class="wrap">
+  <div class="foot">
+   <div>
+    <a class="logo" href="index.html" style="color:#fff"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4L8 12l10 8"/></svg></i>kitala</a>
+    <p style="margin-top:14px;max-width:34ch">La boutique en ligne des commerçants de Brazzaville et d'Afrique centrale. Vos commandes arrivent sur WhatsApp.</p>
+   </div>
+   <div><h4>Kitala</h4><ul><li><a href="fonctionnalites.html">Fonctionnalités</a></li><li><a href="tarifs.html">Tarifs</a></li><li><a href="exemples.html">Exemples de boutiques</a></li></ul></div>
+   <div><h4>Ressources</h4><ul><li><a href="a-propos.html">À propos</a></li><li><a href="aide.html">Centre d'aide</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+   <div><h4>Commencer</h4><ul><li><a data-cta href="#">Créer ma boutique</a></li><li><a data-wa="Bonjour Kitala, j'ai une question." href="contact.html">Nous écrire sur WhatsApp</a></li></ul></div>
+  </div>
+  <div class="legal">© 2026 Kitala. Les prix, noms et avis présentés sur les exemples de boutiques sont fictifs.</div>
+ </div>
+</footer>
+<script src="config.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
