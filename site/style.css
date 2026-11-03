@@ -164,22 +164,6 @@ footer a{text-decoration:none;opacity:.9}footer a:hover{text-decoration:underlin
 .code{display:flex;gap:8px;justify-content:center;margin:12px 0}
 .code span{width:42px;height:54px;border:var(--b);border-radius:10px;display:grid;place-items:center;font-family:var(--titre);font-weight:800;font-size:1.5rem;background:#fff;box-shadow:3px 3px 0 var(--nuit)}
 
-/* Tarifs */
-.plan{display:flex;flex-direction:column}
-.plan.pop{background:var(--soleil);position:relative}
-.plan .flag{position:absolute;top:-16px;right:20px;background:var(--rose);color:#fff;border:var(--b);border-radius:999px;padding:.15em .9em;font-weight:800;font-family:var(--titre);font-size:.85rem}
-.price{font-family:var(--titre);font-weight:800;font-size:2rem;margin:.2em 0}
-.price small{font-size:1rem;font-weight:600;font-family:var(--texte)}
-.plan ul{padding-left:1.1em;margin:0 0 1.4em;display:grid;gap:6px}
-.plan .btn{margin-top:auto;justify-content:center}
-.tablewrap{overflow-x:auto;border:var(--b);border-radius:var(--r);box-shadow:var(--sh);background:#fff}
-table{border-collapse:collapse;width:100%;min-width:620px}
-th,td{padding:14px 16px;text-align:center;border-bottom:2px solid var(--pale)}
-th:first-child,td:first-child{text-align:left}
-thead th{background:var(--nuit);color:#fff;font-family:var(--titre)}
-tbody tr:last-child td{border-bottom:0}
-.ok{color:var(--feuille);font-weight:800}.tbd{opacity:.6;font-style:italic}
-
 /* FAQ */
 details{border:var(--b);border-radius:14px;background:#fff;margin-bottom:12px;box-shadow:3px 3px 0 var(--nuit)}
 summary{cursor:pointer;padding:16px 20px;font-family:var(--titre);font-weight:800;font-size:1.1rem;list-style:none;display:flex;justify-content:space-between;gap:12px}
@@ -213,8 +197,6 @@ details .rep{padding:0 20px 18px}
 
 /* À propos / aide / contact */
 .val{display:flex;flex-direction:column}
-.team .card{text-align:center}
-.team .slot{width:96px;height:96px;margin:0 auto 12px;border:2px dashed var(--nuit);border-radius:50%;display:grid;place-items:center;background:var(--pale);font-size:.8rem;font-weight:700}
 .search{width:100%;max-width:560px;padding:14px 18px;border:var(--b);border-radius:14px;font:inherit;box-shadow:4px 4px 0 var(--nuit)}
 form.f{display:grid;gap:16px}
 .f label{font-weight:700;display:grid;gap:6px}

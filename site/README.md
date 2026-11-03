@@ -8,10 +8,6 @@ Site statique (HTML, CSS, JS). Il n'y a rien à installer : ouvrir `index.html` 
   Tant qu'il est vide, les boutons WhatsApp renvoient vers la page Contact.
 - `app` et `inscription` : adresse de l'application et chemin d'inscription (déjà réglés).
 
-## À compléter dans les pages
-
-- `tarifs.html` : prix des 3 offres (actuellement « [à définir] ») et limites du tableau.
-- `a-propos.html` : noms, rôles et photos de l'équipe.
 
 ## Images
 
