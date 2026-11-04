@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { compressImage } from '@/lib/image';
 import { formatFCFA } from '@/lib/utils';
 import { saveProductAction, deleteProductAction } from '@/actions/products';
+import { describeProductAction } from '@/actions/ai';
 import type { Product } from '@/types';
 
 type Draft = { id?: string; nom: string; description: string; prix: string; stock: string; image_url: string | null };
@@ -17,6 +18,7 @@ export function ProductManager({ userId, products }: { userId: string; products:
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [pending, start] = useTransition();
+  const [aiBusy, setAiBusy] = useState(false);
   const input = 'min-h-12 w-full rounded-lg border border-neutral-300 bg-white px-3 text-base';
 
   async function onFile(file: File | undefined) {
@@ -31,6 +33,16 @@ export function ProductManager({ userId, products }: { userId: string; products:
       setDraft({ ...draft, image_url: sb.storage.from('products').getPublicUrl(path).data.publicUrl });
     } catch { setError('Envoi de l’image impossible. Vérifiez votre connexion.'); }
     setUploading(false);
+  }
+
+  async function suggest() {
+    if (!draft?.image_url) return;
+    setAiBusy(true); setError(null);
+    const res = await describeProductAction(draft.image_url);
+    setAiBusy(false);
+    if (!res.ok) return setError(res.error);
+    // On ne remplace jamais ce que le marchand a déjà écrit.
+    setDraft({ ...draft, nom: draft.nom.trim() ? draft.nom : res.nom, description: draft.description.trim() ? draft.description : res.description });
   }
 
   function save() {
@@ -73,6 +85,11 @@ export function ProductManager({ userId, products }: { userId: string; products:
               <input type="file" accept="image/*" className="sr-only" disabled={uploading} onChange={(e) => onFile(e.target.files?.[0])} />
             </label>
           </div>
+          {draft.image_url && (
+            <button type="button" onClick={suggest} disabled={aiBusy || uploading} className="min-h-11 rounded-lg border-2 border-rose px-4 text-sm font-semibold text-rose disabled:opacity-60">
+              {aiBusy ? 'Réflexion…' : '✨ Remplir avec l’assistant Kitala'}
+            </button>
+          )}
           {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
           <div className="flex gap-2">
             <button onClick={save} disabled={pending || uploading} className="min-h-12 flex-1 rounded-lg bg-nuit font-semibold text-white disabled:opacity-60">{pending ? 'Enregistrement…' : 'Enregistrer'}</button>
