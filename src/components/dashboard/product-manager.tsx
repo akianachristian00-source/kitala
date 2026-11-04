@@ -54,7 +54,7 @@ export function ProductManager({ userId, products }: { userId: string; products:
     <section className="grid gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Produits ({products.length})</h1>
-        <button onClick={() => setDraft(EMPTY)} className="min-h-11 rounded-lg bg-emerald-800 px-4 text-sm font-semibold text-white">Ajouter un produit</button>
+        <button onClick={() => setDraft(EMPTY)} className="min-h-11 rounded-lg bg-nuit px-4 text-sm font-semibold text-white">Ajouter un produit</button>
       </div>
 
       {draft && (
@@ -75,7 +75,7 @@ export function ProductManager({ userId, products }: { userId: string; products:
           </div>
           {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
           <div className="flex gap-2">
-            <button onClick={save} disabled={pending || uploading} className="min-h-12 flex-1 rounded-lg bg-emerald-800 font-semibold text-white disabled:opacity-60">{pending ? 'Enregistrement…' : 'Enregistrer'}</button>
+            <button onClick={save} disabled={pending || uploading} className="min-h-12 flex-1 rounded-lg bg-nuit font-semibold text-white disabled:opacity-60">{pending ? 'Enregistrement…' : 'Enregistrer'}</button>
             <button onClick={() => setDraft(null)} className="min-h-12 rounded-lg border px-4">Annuler</button>
           </div>
         </div>

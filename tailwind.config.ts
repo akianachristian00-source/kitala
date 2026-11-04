@@ -6,11 +6,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Palette de la marque Kitala (identique au site vitrine) : tableau de bord et écrans de connexion.
+        nuit: '#10173F', rose: '#E8315B', soleil: '#FFC72C', feuille: '#19A463', pale: '#EEF0FF',
         k: {
           primary: 'var(--k-primary)', onprimary: 'var(--k-on-primary)', bg: 'var(--k-bg)', text: 'var(--k-text)',
           surface: 'var(--k-surface)', tint: 'var(--k-tint)', line: 'var(--k-line)', muted: 'var(--k-muted)',
         },
       },
+      fontFamily: { display: ['var(--font-titre)', 'system-ui', 'sans-serif'] },
       borderRadius: { k: 'var(--k-radius)' },
       keyframes: {
         reveal: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'none' } },

@@ -1,14 +1,36 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { authErrorMessage, isSixDigits } from '@/lib/auth-errors';
+import { Logo } from '@/components/brand/logo';
 
 type Step = 'in' | 'up' | 'code' | 'mfa';
 
-const input = 'min-h-12 w-full rounded-lg border border-neutral-300 px-3 text-base';
-const primary = 'min-h-12 rounded-lg bg-emerald-800 font-semibold text-white disabled:opacity-60';
-const codeInput = `${input} text-center text-2xl tracking-[0.5em]`;
+const input = 'min-h-12 w-full rounded-xl border-2 border-nuit/15 bg-white px-4 text-base text-nuit outline-none placeholder:text-nuit/40 focus:border-nuit';
+const primary = 'min-h-12 rounded-xl bg-nuit px-4 font-display text-lg font-extrabold text-white shadow-[0_4px_0_0_rgba(16,23,63,.35)] active:translate-y-0.5 active:shadow-none disabled:opacity-60';
+const accent = 'min-h-12 rounded-xl bg-rose px-4 font-display text-lg font-extrabold text-white shadow-[0_4px_0_0_rgba(16,23,63,.35)] active:translate-y-0.5 active:shadow-none disabled:opacity-60';
+const link = 'min-h-11 text-sm font-semibold text-nuit underline decoration-2 underline-offset-4 disabled:no-underline disabled:opacity-60';
+const codeInput = `${input} text-center font-display text-3xl tracking-[0.4em]`;
+
+/** Champ mot de passe avec bouton « afficher / masquer » (utile sur téléphone : moins de fautes de frappe). */
+function PasswordField({ autoComplete }: { autoComplete: string }) {
+  const [shown, setShown] = useState(false);
+  return (
+    <label className="grid gap-1.5 text-sm font-semibold text-nuit">Mot de passe
+      <span className="relative block">
+        <input name="password" type={shown ? 'text' : 'password'} required minLength={8} autoComplete={autoComplete} placeholder="8 caractères minimum" className={`${input} pr-14 font-normal`} />
+        <button type="button" onClick={() => setShown((s) => !s)} aria-label={shown ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} aria-pressed={shown}
+          className="absolute inset-y-0 right-0 grid w-12 place-items-center text-nuit/60 hover:text-nuit">
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            {shown ? <path d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 5.1A9.8 9.8 0 0112 5c5 0 9 4.5 10 7a11.6 11.6 0 01-3.2 4.2M6.6 6.6A11.7 11.7 0 002 12c1 2.5 5 7 10 7a9.7 9.7 0 004.1-.9" /> : <><path d="M2 12c1-2.5 5-7 10-7s9 4.5 10 7c-1 2.5-5 7-10 7S3 14.5 2 12z" /><circle cx="12" cy="12" r="3" /></>}
+          </svg>
+        </button>
+      </span>
+    </label>
+  );
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -115,50 +137,79 @@ export default function LoginPage() {
 
   const codeFieldProps = { name: 'code', inputMode: 'numeric' as const, pattern: '[0-9]{6}', maxLength: 6, required: true, autoComplete: 'one-time-code', autoFocus: true, placeholder: '000000', 'aria-label': 'Code à 6 chiffres' };
 
+  const title = 'font-display text-4xl font-extrabold leading-tight tracking-tight text-nuit';
+  const sub = 'text-base text-nuit/70';
+
   return (
-    <main className="mx-auto grid min-h-screen max-w-sm content-center gap-4 p-6">
-      {(step === 'in' || step === 'up') && (
-        <>
-          <h1 className="text-2xl font-semibold">{step === 'in' ? 'Connexion à Kitala' : 'Créer votre compte marchand'}</h1>
-          <form onSubmit={submitCredentials} className="grid gap-3">
-            <input name="email" type="email" required autoComplete="email" placeholder="E-mail" className={input} />
-            <input name="password" type="password" required minLength={8} autoComplete={step === 'in' ? 'current-password' : 'new-password'} placeholder="Mot de passe (8 caractères min.)" className={input} />
-            <button disabled={busy} className={primary}>{step === 'in' ? 'Se connecter' : 'Créer mon compte'}</button>
-          </form>
-          <button onClick={() => { setStep(step === 'in' ? 'up' : 'in'); setMsg(null); }} className="min-h-11 text-sm underline">
-            {step === 'in' ? 'Pas encore de boutique ? Créer un compte' : 'J’ai déjà un compte'}
-          </button>
-        </>
-      )}
+    <main className="min-h-screen bg-pale lg:grid lg:grid-cols-2">
+      {/* Photo : visible à partir de la tablette ; sur téléphone on garde la page légère. */}
+      <aside className="relative hidden lg:block">
+        <Image src="/auth-hero.webp" alt="Une couturière sourit en regardant son téléphone dans son atelier" fill priority sizes="50vw" className="object-cover" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-nuit/85 via-nuit/10 to-transparent" />
+        <p className="absolute inset-x-10 bottom-10 font-display text-4xl font-extrabold leading-tight text-white">Ouvrez votre boutique.<br />Recevez vos commandes sur WhatsApp.</p>
+      </aside>
 
-      {step === 'code' && (
-        <>
-          <h1 className="text-2xl font-semibold">Confirmez votre e-mail</h1>
-          <p className="text-sm text-neutral-600">Saisissez le code à 6 chiffres reçu à <strong>{email}</strong>. <strong>Pas de message ? Vérifiez votre dossier spam.</strong></p>
-          <form onSubmit={submitEmailCode} className="grid gap-3">
-            <input {...codeFieldProps} className={codeInput} />
-            <button disabled={busy} className={primary}>Confirmer</button>
-          </form>
-          <button onClick={resendCode} disabled={cooldown > 0} className="min-h-11 text-sm underline disabled:no-underline disabled:opacity-60">
-            {cooldown > 0 ? `Renvoyer un code (${cooldown} s)` : 'Renvoyer un code'}
-          </button>
-          <button onClick={() => { setStep('in'); setMsg(null); }} className="min-h-11 text-sm underline">Retour</button>
-        </>
-      )}
+      <section className="grid min-h-screen content-center justify-items-center px-5 py-10">
+        <div className="grid w-full max-w-sm gap-5">
+          <Logo className="mb-2" />
 
-      {step === 'mfa' && (
-        <>
-          <h1 className="text-2xl font-semibold">Vérification en deux étapes</h1>
-          <p className="text-sm text-neutral-600">Ouvrez votre application d’authentification (Google Authenticator, Authy…) et saisissez le code à 6 chiffres affiché pour Kitala.</p>
-          <form onSubmit={submitMfa} className="grid gap-3">
-            <input {...codeFieldProps} className={codeInput} />
-            <button disabled={busy} className={primary}>Valider</button>
-          </form>
-          <button onClick={cancelMfa} className="min-h-11 text-sm underline">Annuler et me déconnecter</button>
-        </>
-      )}
+          {(step === 'in' || step === 'up') && (
+            <>
+              <div>
+                <h1 className={title}>{step === 'in' ? 'Bon retour' : 'Créez votre compte'}</h1>
+                <p className={`${sub} mt-1`}>{step === 'in' ? 'Connectez-vous à votre compte Kitala.' : 'Ouvrez votre boutique en quelques minutes.'}</p>
+              </div>
+              <form onSubmit={submitCredentials} className="grid gap-4">
+                <label className="grid gap-1.5 text-sm font-semibold text-nuit">E-mail
+                  <input name="email" type="email" required autoComplete="email" placeholder="email@exemple.com" className={`${input} font-normal`} />
+                </label>
+                <PasswordField autoComplete={step === 'in' ? 'current-password' : 'new-password'} />
+                <button disabled={busy} className={step === 'in' ? primary : accent}>{busy ? 'Un instant…' : step === 'in' ? 'Se connecter' : 'Créer mon compte'}</button>
+              </form>
+              <p className="text-center text-sm text-nuit/70">
+                {step === 'in' ? 'Pas encore de compte ? ' : 'Déjà un compte ? '}
+                <button onClick={() => { setStep(step === 'in' ? 'up' : 'in'); setMsg(null); }} className={link}>{step === 'in' ? 'Inscription' : 'Se connecter'}</button>
+              </p>
+            </>
+          )}
 
-      {msg && <p role="alert" className="text-sm text-neutral-700">{msg}</p>}
+          {step === 'code' && (
+            <>
+              <div>
+                <h1 className={title}>Vérifiez votre e-mail</h1>
+                <p className={`${sub} mt-1`}>Saisissez le code à 6 chiffres envoyé à <strong className="text-nuit">{email}</strong>.</p>
+              </div>
+              <p className="rounded-xl border-2 border-soleil bg-soleil/25 px-4 py-3 text-sm font-semibold text-nuit">Pas de message ? Regardez dans votre dossier spam.</p>
+              <form onSubmit={submitEmailCode} className="grid gap-4">
+                <input {...codeFieldProps} className={codeInput} />
+                <button disabled={busy} className={primary}>{busy ? 'Vérification…' : 'Confirmer'}</button>
+              </form>
+              <div className="flex flex-wrap items-center justify-between">
+                <button onClick={resendCode} disabled={cooldown > 0} className={link}>
+                  {cooldown > 0 ? `Renvoyer un code (${cooldown} s)` : 'Renvoyer un code'}
+                </button>
+                <button onClick={() => { setStep('in'); setMsg(null); }} className={link}>Retour</button>
+              </div>
+            </>
+          )}
+
+          {step === 'mfa' && (
+            <>
+              <div>
+                <h1 className={title}>Vérification en deux étapes</h1>
+                <p className={`${sub} mt-1`}>Ouvrez votre application d’authentification (Google Authenticator, Authy…) et saisissez le code à 6 chiffres affiché pour Kitala.</p>
+              </div>
+              <form onSubmit={submitMfa} className="grid gap-4">
+                <input {...codeFieldProps} className={codeInput} />
+                <button disabled={busy} className={primary}>{busy ? 'Vérification…' : 'Valider'}</button>
+              </form>
+              <button onClick={cancelMfa} className={link}>Annuler et me déconnecter</button>
+            </>
+          )}
+
+          {msg && <p role="alert" className="rounded-xl border-2 border-nuit/15 bg-white px-4 py-3 text-sm text-nuit">{msg}</p>}
+        </div>
+      </section>
     </main>
   );
 }

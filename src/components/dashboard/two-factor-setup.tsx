@@ -104,7 +104,7 @@ export function TwoFactorSetup({ enabled }: { enabled: boolean }) {
           <form onSubmit={confirmEnroll} className="grid gap-3">
             <input {...field} className={codeInput} />
             <div className="flex gap-2">
-              <button disabled={busy} className={`${btn} flex-1 bg-emerald-800 text-white`}>{busy ? '…' : 'Activer'}</button>
+              <button disabled={busy} className={`${btn} flex-1 bg-nuit text-white`}>{busy ? '…' : 'Activer'}</button>
               <button type="button" onClick={cancelEnroll} className={`${btn} border`}>Annuler</button>
             </div>
           </form>

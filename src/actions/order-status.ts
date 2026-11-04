@@ -25,5 +25,6 @@ export async function updateOrderStatusAction(orderId: string, statut: string): 
     return { ok: false, error: 'Impossible de modifier la commande. Réessayez.' };
   }
   revalidatePath('/dashboard');
+  revalidatePath('/dashboard/commandes');
   return { ok: true };
 }

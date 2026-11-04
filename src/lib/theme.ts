@@ -50,3 +50,15 @@ export function themeToCssVars(t: ThemeConfig): CSSProperties {
     fontFamily: `var(${FONTS[t.font].cssVar}), system-ui, sans-serif`,
   } as CSSProperties;
 }
+
+/** Thèmes prêts à l'emploi : un clic règle couleurs, police, style des cartes et arrondi (le titre d'accueil reste inchangé). */
+export const THEME_PRESETS: { key: string; label: string; hint: string; img: string; theme: Omit<ThemeConfig, 'heroTitle'> }[] = [
+  { key: 'mode', label: 'Mode Wax', hint: 'Robes, pagnes, accessoires', img: '/themes/mode.webp',
+    theme: { primary: '#D9480F', background: '#FFF8F0', text: '#1E1B18', font: 'poppins', cardStyle: 'elevated', radius: 18 } },
+  { key: 'beaute', label: 'Beauté Naturelle', hint: 'Soins, cosmétiques, coiffure', img: '/themes/beaute.webp',
+    theme: { primary: '#3F8F6B', background: '#FAFAF7', text: '#1F2A24', font: 'playfair', cardStyle: 'soft', radius: 20 } },
+  { key: 'alimentation', label: 'Alimentation Bissap', hint: 'Pâtisserie, jus, épices', img: '/themes/alimentation.webp',
+    theme: { primary: '#B4233A', background: '#FFF7F5', text: '#2A1215', font: 'dmsans', cardStyle: 'outlined', radius: 14 } },
+  { key: 'electronique', label: 'Électronique Tech', hint: 'Téléphones, accessoires', img: '/themes/electronique.webp',
+    theme: { primary: '#1D4ED8', background: '#FFFFFF', text: '#0F172A', font: 'inter', cardStyle: 'flat', radius: 8 } },
+];
