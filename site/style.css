@@ -204,3 +204,12 @@ form.f{display:grid;gap:16px}
 .f textarea{min-height:130px;resize:vertical}
 .note{font-size:.9rem;opacity:.75}
 .plan p{min-height:3.4em}
+
+/* Tarif */
+.plan{display:flex;flex-direction:column;position:relative}
+.plan.pop{background:var(--soleil)}
+.plan .flag{position:absolute;top:-16px;right:20px;background:var(--rose);color:#fff;border:var(--b);border-radius:999px;padding:.15em .9em;font-weight:800;font-family:var(--titre);font-size:.85rem}
+.price{font-family:var(--titre);font-weight:800;font-size:2.6rem;margin:.2em 0}
+.price small{font-size:1rem;font-weight:600;font-family:var(--texte)}
+.plan ul{padding-left:1.1em;margin:0 0 1.4em;display:grid;gap:6px}
+.plan .btn{margin-top:auto;justify-content:center}
