@@ -15,7 +15,8 @@ export async function describeProductAction(imageUrl: string): Promise<Result> {
   const prefix = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/products/${user?.id}/`;
   if (!user || !imageUrl.startsWith(prefix)) return { ok: false, error: 'Image non autorisée' };
 
-  const { data: allowed } = await createClient().rpc('ai_take_quota', { p_limit: DAILY_LIMIT });
+  const { data: allowed, error: quotaError } = await createClient().rpc('ai_take_quota', { p_limit: DAILY_LIMIT });
+  if (quotaError) { console.error('[kitala] quota IA', quotaError.message); return { ok: false, error: 'L’assistant n’est pas encore activé. Écrivez la description vous-même.' }; }
   if (allowed !== true) return { ok: false, error: `Limite atteinte : ${DAILY_LIMIT} suggestions par jour. Revenez demain.` };
 
   try {
