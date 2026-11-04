@@ -39,6 +39,6 @@ export async function createOrderAction(input: OrderInput, slug: string): Promis
   revalidatePath(`/boutique/${slug}`); // le stock a changé
   return {
     ok: true, orderId: r.order_id,
-    whatsappUrl: buildWhatsAppUrl({ whatsapp: r.store.whatsapp, orderId: r.order_id, boutique: r.store.nom, lines: r.lines, total: r.total, client }),
+    whatsappUrl: buildWhatsAppUrl({ whatsapp: r.store.whatsapp, orderId: r.order_id, boutique: r.store.nom, lines: r.lines, total: r.total, client, position: o.position }),
   };
 }

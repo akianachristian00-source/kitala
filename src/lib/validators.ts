@@ -6,6 +6,7 @@ export const orderInputSchema = z.object({
   nom: z.string().trim().min(2, 'Entrez votre nom').max(80),
   telephone: z.string().trim().regex(/^\+?[0-9\s().-]{8,18}$/, 'Numéro de téléphone invalide'),
   quartier: z.string().trim().min(2, 'Indiquez votre quartier').max(120),
+  position: z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).optional(),
   items: z.array(z.object({ productId: z.string().uuid(), quantite: z.number().int().min(1).max(99) })).min(1).max(50),
 });
 export type OrderInput = z.infer<typeof orderInputSchema>;
