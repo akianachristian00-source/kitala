@@ -18,12 +18,14 @@ export const themeSchema = z.object({
   cardStyle: z.enum(['flat', 'elevated', 'outlined', 'soft']),
   radius: z.number().min(0).max(32),
   heroTitle: z.string().trim().max(80).optional(),
+  tagline: z.string().trim().max(100).optional(),
+  preset: z.enum(['mode', 'beaute', 'alimentation', 'electronique']).optional(),
 });
 export type ThemeConfig = z.infer<typeof themeSchema>;
 
 export const DEFAULT_THEME: ThemeConfig = {
-  primary: '#0F6B4F', background: '#FFFFFF', text: '#161616',
-  font: 'inter', cardStyle: 'flat', radius: 14,
+  primary: '#F5B921', background: '#FBF7F1', text: '#1B1B1B',
+  font: 'poppins', cardStyle: 'elevated', radius: 16,
 };
 
 /** Tolérant : un JSONB vide, partiel ou corrompu retombe toujours sur un thème valide. */
@@ -52,13 +54,13 @@ export function themeToCssVars(t: ThemeConfig): CSSProperties {
 }
 
 /** Thèmes prêts à l'emploi : un clic règle couleurs, police, style des cartes et arrondi (le titre d'accueil reste inchangé). */
-export const THEME_PRESETS: { key: string; label: string; hint: string; img: string; theme: Omit<ThemeConfig, 'heroTitle'> }[] = [
-  { key: 'mode', label: 'Mode Wax', hint: 'Robes, pagnes, accessoires', img: '/themes/mode.webp',
-    theme: { primary: '#D9480F', background: '#FFF8F0', text: '#1E1B18', font: 'poppins', cardStyle: 'elevated', radius: 18 } },
-  { key: 'beaute', label: 'Beauté Naturelle', hint: 'Soins, cosmétiques, coiffure', img: '/themes/beaute.webp',
-    theme: { primary: '#3F8F6B', background: '#FAFAF7', text: '#1F2A24', font: 'playfair', cardStyle: 'soft', radius: 20 } },
-  { key: 'alimentation', label: 'Alimentation Bissap', hint: 'Pâtisserie, jus, épices', img: '/themes/alimentation.webp',
-    theme: { primary: '#B4233A', background: '#FFF7F5', text: '#2A1215', font: 'dmsans', cardStyle: 'outlined', radius: 14 } },
-  { key: 'electronique', label: 'Électronique Tech', hint: 'Téléphones, accessoires', img: '/themes/electronique.webp',
-    theme: { primary: '#1D4ED8', background: '#FFFFFF', text: '#0F172A', font: 'inter', cardStyle: 'flat', radius: 8 } },
+export const THEME_PRESETS: { key: NonNullable<ThemeConfig['preset']>; label: string; hint: string; img: string; tagline: string; theme: Omit<ThemeConfig, 'heroTitle' | 'tagline'> }[] = [
+  { key: 'mode', label: 'Mode Wax', hint: 'Robes, pagnes, accessoires', img: '/themes/mode.webp', tagline: 'Élégance wax et moderne, cousue avec soin',
+    theme: { primary: '#F5B921', background: '#FBF7F1', text: '#1B1B1B', font: 'poppins', cardStyle: 'elevated', radius: 16, preset: 'mode' } },
+  { key: 'beaute', label: 'Beauté Naturelle', hint: 'Soins, cosmétiques, coiffure', img: '/themes/beaute.webp', tagline: 'Des soins naturels pour une peau qui rayonne',
+    theme: { primary: '#E0B040', background: '#FAF6F0', text: '#2A2420', font: 'playfair', cardStyle: 'soft', radius: 14, preset: 'beaute' } },
+  { key: 'alimentation', label: 'Alimentation Bissap', hint: 'Pâtisserie, jus, épices', img: '/themes/alimentation.webp', tagline: 'Fait maison, frais et plein de saveurs',
+    theme: { primary: '#B4233A', background: '#FFF8F3', text: '#2A1215', font: 'dmsans', cardStyle: 'outlined', radius: 14, preset: 'alimentation' } },
+  { key: 'electronique', label: 'Électronique Tech', hint: 'Téléphones, accessoires', img: '/themes/electronique.webp', tagline: 'Téléphones et accessoires de qualité',
+    theme: { primary: '#F5B921', background: '#F7F5F2', text: '#13151A', font: 'inter', cardStyle: 'elevated', radius: 10, preset: 'electronique' } },
 ];

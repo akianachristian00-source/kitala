@@ -22,10 +22,10 @@ export function CartDrawer({ storeId, slug, preview }: { storeId: string; slug: 
 
       {open && (
         <div className={cn(pos, 'inset-0 z-40')} role="dialog" aria-modal="true" aria-label="Panier">
-          <div className="absolute inset-0 bg-black/45" onClick={() => setOpen(false)} />
+          <div className="absolute inset-0 animate-fadeIn bg-black/45" onClick={() => setOpen(false)} />
           <div className="absolute inset-x-0 bottom-0 flex max-h-[88%] animate-sheet flex-col rounded-t-[var(--k-radius)] bg-k-bg text-k-text md:inset-x-auto md:right-0 md:top-0 md:max-h-full md:w-[420px] md:rounded-none">
             <header className="flex items-center justify-between border-b border-k-line p-4">
-              <h2 className="font-semibold">{step === 'cart' ? 'Votre panier' : 'Vos informations'}</h2>
+              <h2 className="text-lg font-bold">{step === 'cart' ? `Panier${count ? ` (${count})` : ''}` : 'Informations de commande'}</h2>
               <button onClick={() => setOpen(false)} aria-label="Fermer" className="size-11 text-2xl leading-none">×</button>
             </header>
 
@@ -62,7 +62,7 @@ export function CartDrawer({ storeId, slug, preview }: { storeId: string; slug: 
             {step === 'cart' && lines.length > 0 && (
               <footer className="border-t border-k-line p-4">
                 <div className="mb-3 flex justify-between font-semibold"><span>Total</span><span>{formatFCFA(total)}</span></div>
-                <button onClick={() => setStep('checkout')} className="min-h-12 w-full rounded-k bg-k-primary font-semibold text-k-onprimary">Continuer</button>
+                <button onClick={() => setStep('checkout')} className="min-h-12 w-full rounded-k bg-k-primary font-semibold text-k-onprimary transition active:scale-[.98]">Continuer vers la commande</button>
               </footer>
             )}
           </div>

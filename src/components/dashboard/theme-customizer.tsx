@@ -30,7 +30,7 @@ export function ThemeCustomizer({ store, products, initial }: { store: Pick<Publ
             {THEME_PRESETS.map((p) => {
               const active = theme.primary === p.theme.primary && theme.font === p.theme.font && theme.cardStyle === p.theme.cardStyle;
               return (
-                <button key={p.key} type="button" aria-pressed={active} onClick={() => { setTheme((t) => ({ ...t, ...p.theme })); setStatus(null); }}
+                <button key={p.key} type="button" aria-pressed={active} onClick={() => { setTheme((t) => ({ ...t, ...p.theme, tagline: t.tagline?.trim() ? t.tagline : p.tagline })); setStatus(null); }}
                   className={`overflow-hidden rounded-2xl border-2 bg-white text-left ${active ? 'border-rose shadow-[3px_3px_0_0_#E8315B]' : 'border-nuit/15 hover:border-nuit'}`}>
                   <Image src={p.img} alt="" width={240} height={240} className="aspect-square w-full object-cover" />
                   <span className="block p-2.5">
@@ -45,6 +45,10 @@ export function ThemeCustomizer({ store, products, initial }: { store: Pick<Publ
 
         <label className="grid gap-1 text-sm font-medium">Titre d’accueil
           <input className="min-h-12 rounded-lg border px-3 text-base font-normal" maxLength={80} placeholder={store.nom} value={theme.heroTitle ?? ''} onChange={(e) => set('heroTitle', e.target.value)} />
+        </label>
+
+        <label className="grid gap-1 text-sm font-medium">Phrase sous le titre
+          <input className="min-h-12 rounded-lg border px-3 text-base font-normal" maxLength={100} placeholder="Ex. Élégance wax et moderne" value={theme.tagline ?? ''} onChange={(e) => set('tagline', e.target.value)} />
         </label>
 
         <div className="grid grid-cols-3 gap-3">

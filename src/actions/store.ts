@@ -15,7 +15,7 @@ export async function createStoreAction(_: unknown, fd: FormData): Promise<{ err
 
   const { error } = await sb.from('stores').insert({ ...parsed.data, user_id: user.id });
   if (error) return { error: error.code === '23505' ? 'Ce nom de boutique (slug) est déjà pris.' : 'Création impossible.' };
-  redirect('/dashboard');
+  redirect('/dashboard?bienvenue=1');
 }
 
 export async function saveThemeAction(theme: ThemeConfig): Promise<{ ok: boolean; error?: string }> {

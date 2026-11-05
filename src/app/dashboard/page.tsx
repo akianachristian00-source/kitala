@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createClient, getMyStore } from '@/lib/supabase/server';
 import { OrdersList } from '@/components/dashboard/orders-list';
 import { CopyLink } from '@/components/dashboard/copy-link';
+import { Welcome } from '@/components/dashboard/welcome';
 
 function StepCard({ n, done, title, text, color, children }: { n: number; done: boolean; title: string; text: string; color: string; children: React.ReactNode }) {
   return (
@@ -17,7 +18,7 @@ function StepCard({ n, done, title, text, color, children }: { n: number; done: 
   );
 }
 
-export default async function DashboardHome() {
+export default async function DashboardHome({ searchParams }: { searchParams: { bienvenue?: string } }) {
   const store = (await getMyStore())!;
   // Filtre explicite : la lecture des produits actifs est publique, on ne compte que ceux de CETTE boutique.
   const { count } = await createClient().from('products').select('id', { count: 'exact', head: true }).eq('store_id', store.id);
@@ -25,6 +26,8 @@ export default async function DashboardHome() {
   const themeDone = typeof store.theme_config === 'object' && store.theme_config !== null && Object.keys(store.theme_config).length > 0;
   const today = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full', timeZone: 'Africa/Brazzaville' }).format(new Date());
   const cta = 'grid min-h-11 w-full place-items-center rounded-xl px-3 font-display text-base font-extrabold';
+
+  if (searchParams.bienvenue === '1') return <Welcome slug={store.slug} nom={store.nom} />;
 
   return (
     <div className="grid gap-8">

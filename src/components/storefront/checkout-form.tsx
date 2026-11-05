@@ -1,16 +1,21 @@
 'use client';
 import { useRef, useState, useTransition } from 'react';
 import { createOrderAction } from '@/actions/orders';
+import { formatFCFA } from '@/lib/utils';
 import { useCart } from './cart-provider';
+import { WhatsAppIcon } from './icons';
+
+const QUARTIERS = ['Poto-Poto', 'Bacongo', 'Moungali', 'Ouenzé', 'Talangaï', 'Makélékélé', 'Mfilou', 'Madibou', 'Djiri', 'Plateau des 15 ans', 'Centre-ville'];
 
 export function CheckoutForm({ storeId, slug, onBack }: { storeId: string; slug: string; onBack: () => void }) {
-  const { lines, clear } = useCart();
+  const { lines, total, clear } = useCart();
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const [geo, setGeo] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle');
   const [geoMsg, setGeoMsg] = useState<string | null>(null);
   const position = useRef<{ lat: number; lng: number } | undefined>(undefined);
   const quartierRef = useRef<HTMLInputElement>(null);
+  const adresseRef = useRef<HTMLInputElement>(null);
 
   function locate() {
     if (!('geolocation' in navigator)) { setGeo('error'); setGeoMsg('Votre téléphone ne permet pas la localisation. Tapez votre quartier.'); return; }
@@ -23,7 +28,8 @@ export function CheckoutForm({ storeId, slug, onBack }: { storeId: string; slug:
           const res = await fetch(`/api/quartier?lat=${lat}&lng=${lng}`);
           const d = (await res.json()) as { quartier?: string; ville?: string; rue?: string };
           if (!res.ok || !d.quartier) throw new Error();
-          if (quartierRef.current) quartierRef.current.value = d.rue ? `${d.quartier}, ${d.rue}` : d.quartier;
+          if (quartierRef.current) quartierRef.current.value = d.quartier;
+          if (adresseRef.current && d.rue && !adresseRef.current.value) adresseRef.current.value = d.rue;
           setGeo('ok'); setGeoMsg(`Quartier détecté : ${d.quartier}${d.ville ? ` (${d.ville})` : ''}. Corrigez-le si besoin.`);
         } catch {
           setGeo('ok'); setGeoMsg('Position enregistrée, mais le quartier n’a pas été reconnu. Tapez-le ci-dessous.');
@@ -40,10 +46,13 @@ export function CheckoutForm({ storeId, slug, onBack }: { storeId: string; slug:
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+    const quartier = String(fd.get('quartier')).trim();
+    const adresse = String(fd.get('adresse')).trim();
+    const lieu = (adresse ? `${quartier} — ${adresse}` : quartier).slice(0, 120);
     setError(null);
     start(async () => {
       const res = await createOrderAction({
-        storeId, nom: String(fd.get('nom')), telephone: String(fd.get('telephone')), quartier: String(fd.get('quartier')),
+        storeId, nom: String(fd.get('nom')), telephone: String(fd.get('telephone')), quartier: lieu,
         position: position.current,
         items: lines.map((l) => ({ productId: l.productId, quantite: l.quantite })),
       }, slug);
@@ -53,25 +62,38 @@ export function CheckoutForm({ storeId, slug, onBack }: { storeId: string; slug:
     });
   }
 
-  const field = 'min-h-12 w-full rounded-k border border-k-line bg-k-bg px-3 text-base text-k-text placeholder:text-k-muted';
+  const field = 'min-h-12 w-full rounded-k border border-k-line bg-white/70 px-3 text-base text-k-text placeholder:text-k-muted outline-none focus:border-k-primary';
   return (
     <form onSubmit={submit} className="flex flex-col gap-3 p-4">
-      <label className="grid gap-1 text-sm text-k-text">Nom complet
+      <label className="grid gap-1 text-sm font-medium text-k-text">Nom complet
         <input name="nom" required minLength={2} autoComplete="name" className={field} placeholder="Ex. Grace Mbemba" /></label>
-      <label className="grid gap-1 text-sm text-k-text">Téléphone (WhatsApp de préférence)
+      <label className="grid gap-1 text-sm font-medium text-k-text">Téléphone WhatsApp
         <input name="telephone" required type="tel" inputMode="tel" autoComplete="tel" className={field} placeholder="+242 06 123 45 67" /></label>
-      <div className="grid gap-1 text-sm text-k-text">
+      <div className="grid gap-1 text-sm font-medium text-k-text">
         <label htmlFor="quartier">Quartier de livraison</label>
-        <input id="quartier" ref={quartierRef} name="quartier" required minLength={2} className={field} placeholder="Ex. Poto-Poto, près du marché" />
+        <input id="quartier" ref={quartierRef} name="quartier" list="quartiers" required minLength={2} className={field} placeholder="Choisissez ou tapez votre quartier" />
+        <datalist id="quartiers">{QUARTIERS.map((q) => <option key={q} value={q} />)}</datalist>
         <button type="button" onClick={locate} disabled={geo === 'loading'} className="min-h-11 rounded-k border border-k-line px-3 text-sm font-semibold text-k-text disabled:opacity-60">
           {geo === 'loading' ? 'Localisation…' : '📍 Utiliser ma position'}
         </button>
-        {geoMsg && <p role="status" className={`text-xs ${geo === 'error' ? 'text-red-700' : 'text-k-muted'}`}>{geoMsg}</p>}
+        {geoMsg && <p role="status" className={`text-xs font-normal ${geo === 'error' ? 'text-red-700' : 'text-k-muted'}`}>{geoMsg}</p>}
       </div>
+      <label className="grid gap-1 text-sm font-medium text-k-text"><span>Adresse précise <span className="font-normal text-k-muted">(facultatif)</span></span>
+        <input ref={adresseRef} name="adresse" maxLength={80} className={field} placeholder="Ex. Rue de la Mairie, près du marché, porte bleue" /></label>
+
+      <div className="rounded-k bg-k-tint p-3 text-sm">
+        <p className="mb-1 font-semibold">Récapitulatif</p>
+        <ul className="grid gap-0.5">
+          {lines.map((l) => <li key={l.productId} className="flex justify-between gap-3"><span className="truncate">{l.quantite} × {l.nom}</span><span className="shrink-0 tabular-nums">{formatFCFA(l.prix * l.quantite)}</span></li>)}
+        </ul>
+        <p className="mt-2 flex justify-between border-t border-k-line pt-2 text-base font-bold"><span>Total</span><span>{formatFCFA(total)}</span></p>
+      </div>
+
       {error && <p role="alert" className="rounded-k bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-      <button disabled={pending} className="min-h-12 rounded-k bg-k-primary font-semibold text-k-onprimary disabled:opacity-60">
-        {pending ? 'Enregistrement…' : 'Commander sur WhatsApp'}
+      <button disabled={pending} className="flex min-h-12 items-center justify-center gap-2 rounded-k bg-k-primary font-semibold text-k-onprimary disabled:opacity-60">
+        <WhatsAppIcon /> {pending ? 'Enregistrement…' : 'Commander sur WhatsApp'}
       </button>
+      <p className="rounded-k border border-k-line bg-white/50 p-2.5 text-center text-xs text-k-muted">Le paiement se règle directement avec le vendeur sur WhatsApp.</p>
       <button type="button" onClick={onBack} className="min-h-11 text-sm text-k-muted underline">Retour au panier</button>
     </form>
   );
