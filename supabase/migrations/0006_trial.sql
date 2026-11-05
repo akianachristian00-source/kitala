@@ -89,3 +89,7 @@ insert into public.trial_claims (key)
   select 'wa:' || right(whatsapp, 9) from public.stores
   union select 'em:' || public.norm_email(email) from public.stores
   on conflict do nothing;
+
+-- Tables internes : aucun accès direct pour les rôles publics.
+revoke all on public.trial_claims from anon, authenticated;
+revoke all on public.ai_usage from anon, authenticated;
