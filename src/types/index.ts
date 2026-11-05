@@ -1,5 +1,5 @@
 export type PublicStore = { id: string; nom: string; slug: string; theme_config: unknown };
-export type Store = PublicStore & { whatsapp: string; email: string; user_id: string };
+export type Store = PublicStore & { whatsapp: string; email: string; user_id: string; trial_ends_at?: string | null; paid_until?: string | null };
 export type Product = {
   id: string; store_id: string; nom: string; description: string | null;
   prix: number; stock: number; image_url: string | null; actif: boolean; created_at: string;

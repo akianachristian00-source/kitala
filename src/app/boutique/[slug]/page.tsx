@@ -24,6 +24,18 @@ export default async function BoutiquePage({ params }: { params: { slug: string 
   const store = await getStore(params.slug);
   if (!store) notFound();
 
+  // Boutique suspendue (essai terminé, abonnement non payé) : on n'affiche pas les produits. En cas d'erreur technique on laisse ouvert.
+  const { data: open, error: openErr } = await createPublicClient().rpc('store_is_open', { p_store_id: store.id });
+  if (!openErr && open === false) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-pale px-5 text-center text-nuit">
+        <div className="grid max-w-sm gap-2">
+          <h1 className="font-display text-3xl font-extrabold">{store.nom}</h1>
+          <p className="text-nuit/70">Cette boutique est momentanément indisponible. Revenez bientôt.</p>
+        </div>
+      </main>
+    );
+  }
   const { data } = await createPublicClient().from('products').select('*').eq('store_id', store.id).eq('actif', true).order('created_at', { ascending: false });
   return <StorefrontView store={store} products={(data ?? []) as Product[]} theme={parseTheme(store.theme_config)} />;
 }

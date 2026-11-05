@@ -5,6 +5,7 @@ import { signOutAction } from '@/actions/auth';
 import { StoreSetupForm } from '@/components/dashboard/store-setup-form';
 import { DashboardNav } from '@/components/dashboard/dashboard-nav';
 import { Logo } from '@/components/brand/logo';
+import { SubscriptionBanner } from '@/components/dashboard/subscription-banner';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: { user } } = await createClient().auth.getUser();
@@ -38,7 +39,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <form action={signOutAction}><button className={`${small} w-full`}>Déconnexion</button></form>
         </div>
       </aside>
-      <div className="min-w-0 p-4 lg:p-8"><div className="mx-auto max-w-5xl">{children}</div></div>
+      <div className="min-w-0 p-4 lg:p-8"><div className="mx-auto max-w-5xl"><SubscriptionBanner store={store} />{children}</div></div>
     </div>
   );
 }

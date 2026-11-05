@@ -6,6 +6,7 @@ export function authErrorMessage(error: { code?: string; message?: string }): st
   if (code === 'user_already_exists' || msg.includes('already registered')) return 'Un compte existe déjà avec cet e-mail. Connectez-vous.';
   if (code === 'otp_expired' || msg.includes('expired') || msg.includes('invalid')) return 'Code incorrect ou expiré. Vérifiez le code ou demandez-en un nouveau.';
   if (code === 'mfa_verification_failed' || code === 'mfa_challenge_expired') return 'Code incorrect. Ouvrez votre application d’authentification et saisissez le code actuel.';
+  if (code === 'same_password') return 'Choisissez un mot de passe différent de l’ancien.';
   if (code === 'weak_password') return 'Mot de passe trop faible. Utilisez au moins 8 caractères.';
   if (code.includes('rate_limit') || msg.includes('rate limit') || msg.includes('too many')) return 'Trop de tentatives. Patientez quelques minutes avant de réessayer.';
   if (code === 'email_not_confirmed') return 'Votre e-mail n’est pas encore confirmé.';

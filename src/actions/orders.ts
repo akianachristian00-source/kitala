@@ -11,6 +11,7 @@ const ERRORS: Record<string, (d?: string) => string> = {
   STOCK_INSUFFISANT: (d) => `Stock insuffisant pour « ${d} ». Réduisez la quantité.`,
   PRODUIT_INDISPONIBLE: () => 'Un article de votre panier n’est plus disponible.',
   PANIER_VIDE: () => 'Votre panier est vide.',
+  BOUTIQUE_SUSPENDUE: () => 'Cette boutique n’accepte pas de commandes pour le moment.',
 };
 
 export async function createOrderAction(input: OrderInput, slug: string): Promise<CreateOrderResult> {

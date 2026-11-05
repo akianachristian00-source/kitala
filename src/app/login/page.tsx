@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { authErrorMessage, isSixDigits } from '@/lib/auth-errors';
 import { Logo } from '@/components/brand/logo';
 
-type Step = 'in' | 'up' | 'code' | 'mfa';
+type Step = 'in' | 'up' | 'code' | 'mfa' | 'forgot' | 'reset';
 
 const input = 'min-h-12 w-full rounded-xl border-2 border-nuit/15 bg-white px-4 text-base text-nuit outline-none placeholder:text-nuit/40 focus:border-nuit';
 const primary = 'min-h-12 rounded-xl bg-nuit px-4 font-display text-lg font-extrabold text-white shadow-[0_4px_0_0_rgba(16,23,63,.35)] active:translate-y-0.5 active:shadow-none disabled:opacity-60';
@@ -15,10 +15,10 @@ const link = 'min-h-11 text-sm font-semibold text-nuit underline decoration-2 un
 const codeInput = `${input} text-center font-display text-3xl tracking-[0.4em]`;
 
 /** Champ mot de passe avec bouton « afficher / masquer » (utile sur téléphone : moins de fautes de frappe). */
-function PasswordField({ autoComplete }: { autoComplete: string }) {
+function PasswordField({ autoComplete, label = 'Mot de passe' }: { autoComplete: string; label?: string }) {
   const [shown, setShown] = useState(false);
   return (
-    <label className="grid gap-1.5 text-sm font-semibold text-nuit">Mot de passe
+    <label className="grid gap-1.5 text-sm font-semibold text-nuit">{label}
       <span className="relative block">
         <input name="password" type={shown ? 'text' : 'password'} required minLength={8} autoComplete={autoComplete} placeholder="8 caractères minimum" className={`${input} pr-14 font-normal`} />
         <button type="button" onClick={() => setShown((s) => !s)} aria-label={shown ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} aria-pressed={shown}
@@ -111,6 +111,41 @@ export default function LoginPage() {
     goDashboard();
   }
 
+  /** Mot de passe oublié : envoie un code à 6 chiffres (modèle « Reset password » de Supabase à configurer avec {{ .Token }}). */
+  async function sendReset(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const mail = String(new FormData(e.currentTarget).get('email')).trim();
+    setBusy(true); setMsg(null); setEmail(mail);
+    const { error } = await createClient().auth.resetPasswordForEmail(mail);
+    setBusy(false);
+    if (error) return setMsg(authErrorMessage(error));
+    setCooldown(60); setStep('reset');
+    setMsg(`Si un compte existe avec ${mail}, un code à 6 chiffres vient d’y être envoyé.`);
+  }
+
+  async function submitReset(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const code = String(fd.get('code')).trim();
+    const password = String(fd.get('password'));
+    if (!isSixDigits(code)) return setMsg('Le code contient exactement 6 chiffres.');
+    setBusy(true); setMsg(null);
+    const sb = createClient();
+    const { error } = await sb.auth.verifyOtp({ email, token: code, type: 'recovery' });
+    if (error) { setBusy(false); return setMsg(authErrorMessage(error)); }
+    const { error: upErr } = await sb.auth.updateUser({ password });
+    setBusy(false);
+    if (upErr) return setMsg(authErrorMessage(upErr));
+    await startMfa(); // si la double authentification est active, le code de l'application est demandé
+  }
+
+  async function resendReset() {
+    setMsg(null);
+    const { error } = await createClient().auth.resetPasswordForEmail(email);
+    if (error) return setMsg(authErrorMessage(error));
+    setCooldown(60); setMsg('Nouveau code envoyé. Pensez à vérifier votre dossier spam.');
+  }
+
   async function resendCode() {
     setMsg(null);
     const { error } = await createClient().auth.resend({ type: 'signup', email });
@@ -166,10 +201,46 @@ export default function LoginPage() {
                 <PasswordField autoComplete={step === 'in' ? 'current-password' : 'new-password'} />
                 <button disabled={busy} className={step === 'in' ? primary : accent}>{busy ? 'Un instant…' : step === 'in' ? 'Se connecter' : 'Créer mon compte'}</button>
               </form>
+              {step === 'in' && <button onClick={() => { setStep('forgot'); setMsg(null); }} className={`${link} justify-self-center`}>Mot de passe oublié ?</button>}
               <p className="text-center text-sm text-nuit/70">
                 {step === 'in' ? 'Pas encore de compte ? ' : 'Déjà un compte ? '}
                 <button onClick={() => { setStep(step === 'in' ? 'up' : 'in'); setMsg(null); }} className={link}>{step === 'in' ? 'Inscription' : 'Se connecter'}</button>
               </p>
+            </>
+          )}
+
+          {step === 'forgot' && (
+            <>
+              <div>
+                <h1 className={title}>Mot de passe oublié</h1>
+                <p className={`${sub} mt-1`}>Entrez votre e-mail : nous vous envoyons un code à 6 chiffres.</p>
+              </div>
+              <form onSubmit={sendReset} className="grid gap-4">
+                <label className="grid gap-1.5 text-sm font-semibold text-nuit">E-mail
+                  <input name="email" type="email" required autoComplete="email" defaultValue={email} placeholder="email@exemple.com" className={`${input} font-normal`} />
+                </label>
+                <button disabled={busy} className={primary}>{busy ? 'Envoi…' : 'Recevoir le code'}</button>
+              </form>
+              <button onClick={() => { setStep('in'); setMsg(null); }} className={`${link} justify-self-center`}>Retour à la connexion</button>
+            </>
+          )}
+
+          {step === 'reset' && (
+            <>
+              <div>
+                <h1 className={title}>Nouveau mot de passe</h1>
+                <p className={`${sub} mt-1`}>Saisissez le code reçu à <strong className="text-nuit">{email}</strong>, puis choisissez un nouveau mot de passe.</p>
+              </div>
+              <p className="rounded-xl border-2 border-soleil bg-soleil/25 px-4 py-3 text-sm font-semibold text-nuit">Pas de message ? Regardez dans votre dossier spam.</p>
+              <form onSubmit={submitReset} className="grid gap-4">
+                <input {...codeFieldProps} className={codeInput} />
+                <PasswordField autoComplete="new-password" label="Nouveau mot de passe" />
+                <button disabled={busy} className={accent}>{busy ? 'Enregistrement…' : 'Changer mon mot de passe'}</button>
+              </form>
+              <div className="flex flex-wrap items-center justify-between">
+                <button onClick={resendReset} disabled={cooldown > 0} className={link}>{cooldown > 0 ? `Renvoyer un code (${cooldown} s)` : 'Renvoyer un code'}</button>
+                <button onClick={() => { setStep('in'); setMsg(null); }} className={link}>Retour</button>
+              </div>
             </>
           )}
 
