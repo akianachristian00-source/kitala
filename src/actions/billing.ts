@@ -3,9 +3,7 @@ import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createClient, getMyStore } from '@/lib/supabase/server';
 import { createPayment, paymentsConfigured } from '@/lib/geniuspay';
-import { PRIX_ABONNEMENT } from '@/lib/subscription';
-
-export const PAY_COOKIE = 'kitala_pay_ref';
+import { PRIX_ABONNEMENT, PAY_COOKIE } from '@/lib/subscription';
 
 /** Crée le paiement chez GeniusPay puis envoie le commerçant sur la page de paiement. */
 export async function startPaymentAction() {

@@ -1,6 +1,7 @@
 import type { Store } from '@/types';
 
 export const PRIX_ABONNEMENT = 10000; // FCFA / mois
+export const PAY_COOKIE = 'kitala_pay_ref'; // référence du paiement en cours (cookie)
 export const KITALA_WHATSAPP = '242064035691'; // contact paiement (même numéro que le site vitrine)
 
 export type Subscription =

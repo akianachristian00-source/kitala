@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { createClient, getMyStore } from '@/lib/supabase/server';
 import { getPayment, paymentsConfigured, proofFor } from '@/lib/geniuspay';
-import { PAY_COOKIE, startPaymentAction } from '@/actions/billing';
-import { PRIX_ABONNEMENT } from '@/lib/subscription';
+import { startPaymentAction } from '@/actions/billing';
+import { PRIX_ABONNEMENT, PAY_COOKIE } from '@/lib/subscription';
 
 export const dynamic = 'force-dynamic';
 const dateFmt = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Brazzaville' });
