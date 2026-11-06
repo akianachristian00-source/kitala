@@ -1,7 +1,12 @@
-import { subscriptionOf, payLink, PRIX_ABONNEMENT } from '@/lib/subscription';
+import { subscriptionOf, PRIX_ABONNEMENT } from '@/lib/subscription';
 import type { Store } from '@/types';
+import { startPaymentAction } from '@/actions/billing';
 
 const dateFmt = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', timeZone: 'Africa/Brazzaville' });
+
+function PayButton({ label, className }: { label: string; className: string }) {
+  return <form action={startPaymentAction}><button className={className}>{label}</button></form>;
+}
 
 /** Bandeau d'état de l'abonnement : essai en cours, boutique suspendue, ou rien si tout va bien. */
 export function SubscriptionBanner({ store }: { store: Store }) {
@@ -17,14 +22,14 @@ export function SubscriptionBanner({ store }: { store: Store }) {
     return (
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-soleil bg-soleil/25 px-4 py-3">
         <p className="text-sm font-semibold">Essai gratuit : encore {sub.joursRestants} jour{sub.joursRestants > 1 ? 's' : ''} (jusqu’au {dateFmt.format(sub.jusquau)}). Ensuite {prix}.</p>
-        <a href={payLink(store.nom)} target="_blank" rel="noopener" className={btn}>Payer l’abonnement</a>
+        <PayButton label="Payer l’abonnement" className={btn} />
       </div>
     );
   }
   return (
     <div role="alert" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-rose bg-rose/10 px-4 py-3">
       <p className="text-sm font-semibold text-rose">Votre essai est terminé : votre boutique est suspendue et ne reçoit plus de commandes. Abonnement : {prix}.</p>
-      <a href={payLink(store.nom)} target="_blank" rel="noopener" className={btn}>Réactiver ma boutique</a>
+      <PayButton label="Réactiver ma boutique" className={btn} />
     </div>
   );
 }
