@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { authErrorMessage, isSixDigits } from '@/lib/auth-errors';
 import { Logo } from '@/components/brand/logo';
+import { CodeInput } from '@/components/auth/code-input';
 
 type Step = 'in' | 'up' | 'code' | 'mfa' | 'forgot' | 'reset';
 
@@ -12,23 +13,50 @@ const input = 'min-h-12 w-full rounded-xl border-2 border-nuit/15 bg-white px-4 
 const primary = 'min-h-12 rounded-xl bg-nuit px-4 font-display text-lg font-extrabold text-white shadow-[0_4px_0_0_rgba(16,23,63,.35)] active:translate-y-0.5 active:shadow-none disabled:opacity-60';
 const accent = 'min-h-12 rounded-xl bg-rose px-4 font-display text-lg font-extrabold text-white shadow-[0_4px_0_0_rgba(16,23,63,.35)] active:translate-y-0.5 active:shadow-none disabled:opacity-60';
 const link = 'min-h-11 text-sm font-semibold text-nuit underline decoration-2 underline-offset-4 disabled:no-underline disabled:opacity-60';
-const codeInput = `${input} text-center font-display text-3xl tracking-[0.4em]`;
 
-/** Champ mot de passe avec bouton « afficher / masquer » (utile sur téléphone : moins de fautes de frappe). */
-function PasswordField({ autoComplete, label = 'Mot de passe' }: { autoComplete: string; label?: string }) {
+/** Force du mot de passe : 0 (vide) à 4. Simple et lisible, sans bibliothèque. */
+function strengthOf(p: string): { score: number; label: string; color: string } {
+  if (!p) return { score: 0, label: '', color: 'bg-nuit/10' };
+  let pts = 0;
+  if (p.length >= 8) pts++;
+  if (p.length >= 12) pts++;
+  if (/[a-z]/.test(p) && /[A-Z]/.test(p)) pts++;
+  if (/\d/.test(p)) pts++;
+  if (/[^A-Za-z0-9]/.test(p)) pts++;
+  const score = p.length < 8 ? 1 : Math.min(4, Math.max(2, pts - 1));
+  return [
+    { score: 1, label: 'Faible', color: 'bg-rose' }, { score: 2, label: 'Moyen', color: 'bg-soleil' },
+    { score: 3, label: 'Bon', color: 'bg-feuille' }, { score: 4, label: 'Fort', color: 'bg-feuille' },
+  ][score - 1];
+}
+
+/** Champ mot de passe avec bouton « afficher / masquer » et, au choix, la jauge de force. */
+function PasswordField({ autoComplete, label = 'Mot de passe', name = 'password', strength = false, placeholder = '8 caractères minimum' }: { autoComplete: string; label?: string; name?: string; strength?: boolean; placeholder?: string }) {
   const [shown, setShown] = useState(false);
+  const [value, setValue] = useState('');
+  const st = strengthOf(value);
   return (
-    <label className="grid gap-1.5 text-sm font-semibold text-nuit">{label}
-      <span className="relative block">
-        <input name="password" type={shown ? 'text' : 'password'} required minLength={8} autoComplete={autoComplete} placeholder="8 caractères minimum" className={`${input} pr-14 font-normal`} />
-        <button type="button" onClick={() => setShown((s) => !s)} aria-label={shown ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} aria-pressed={shown}
-          className="absolute inset-y-0 right-0 grid w-12 place-items-center text-nuit/60 hover:text-nuit">
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            {shown ? <path d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 5.1A9.8 9.8 0 0112 5c5 0 9 4.5 10 7a11.6 11.6 0 01-3.2 4.2M6.6 6.6A11.7 11.7 0 002 12c1 2.5 5 7 10 7a9.7 9.7 0 004.1-.9" /> : <><path d="M2 12c1-2.5 5-7 10-7s9 4.5 10 7c-1 2.5-5 7-10 7S3 14.5 2 12z" /><circle cx="12" cy="12" r="3" /></>}
-          </svg>
-        </button>
-      </span>
-    </label>
+    <div className="grid gap-1.5">
+      <label className="grid gap-1.5 text-sm font-semibold text-nuit">{label}
+        <span className="relative block">
+          <input name={name} type={shown ? 'text' : 'password'} required minLength={8} autoComplete={autoComplete} placeholder={placeholder} value={value} onChange={(e) => setValue(e.target.value)} className={`${input} pr-14 font-normal`} />
+          <button type="button" onClick={() => setShown((x) => !x)} aria-label={shown ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} aria-pressed={shown}
+            className="absolute inset-y-0 right-0 grid w-12 place-items-center text-nuit/60 hover:text-nuit">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              {shown ? <path d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 5.1A9.8 9.8 0 0112 5c5 0 9 4.5 10 7a11.6 11.6 0 01-3.2 4.2M6.6 6.6A11.7 11.7 0 002 12c1 2.5 5 7 10 7a9.7 9.7 0 004.1-.9" /> : <><path d="M2 12c1-2.5 5-7 10-7s9 4.5 10 7c-1 2.5-5 7-10 7S3 14.5 2 12z" /><circle cx="12" cy="12" r="3" /></>}
+            </svg>
+          </button>
+        </span>
+      </label>
+      {strength && (
+        <div className="flex items-center gap-3" aria-live="polite">
+          <div className="grid h-2 flex-1 grid-cols-4 gap-1" aria-hidden>
+            {[1, 2, 3, 4].map((n) => <span key={n} className={`rounded-full transition-colors duration-300 ${n <= st.score ? st.color : 'bg-nuit/10'}`} />)}
+          </div>
+          <span className="min-w-14 text-xs font-bold text-nuit/70">{st.label && `Force : ${st.label}`}</span>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -129,6 +157,7 @@ export default function LoginPage() {
     const code = String(fd.get('code')).trim();
     const password = String(fd.get('password'));
     if (!isSixDigits(code)) return setMsg('Le code contient exactement 6 chiffres.');
+    if (password !== String(fd.get('confirm'))) return setMsg('Les deux mots de passe ne sont pas identiques.');
     setBusy(true); setMsg(null);
     const sb = createClient();
     const { error } = await sb.auth.verifyOtp({ email, token: code, type: 'recovery' });
@@ -170,7 +199,6 @@ export default function LoginPage() {
     setStep('in'); setFactorId(null); setMsg(null);
   }
 
-  const codeFieldProps = { name: 'code', inputMode: 'numeric' as const, pattern: '[0-9]{6}', maxLength: 6, required: true, autoComplete: 'one-time-code', autoFocus: true, placeholder: '000000', 'aria-label': 'Code à 6 chiffres' };
 
   const title = 'font-display text-4xl font-extrabold leading-tight tracking-tight text-nuit';
   const sub = 'text-base text-nuit/70';
@@ -233,8 +261,9 @@ export default function LoginPage() {
               </div>
               <p className="rounded-xl border-2 border-soleil bg-soleil/25 px-4 py-3 text-sm font-semibold text-nuit">Pas de message ? Regardez dans votre dossier spam.</p>
               <form onSubmit={submitReset} className="grid gap-4">
-                <input {...codeFieldProps} className={codeInput} />
-                <PasswordField autoComplete="new-password" label="Nouveau mot de passe" />
+                <CodeInput />
+                <PasswordField autoComplete="new-password" label="Nouveau mot de passe" strength />
+                <PasswordField autoComplete="new-password" label="Confirmer le mot de passe" name="confirm" placeholder="Répétez le mot de passe" />
                 <button disabled={busy} className={accent}>{busy ? 'Enregistrement…' : 'Changer mon mot de passe'}</button>
               </form>
               <div className="flex flex-wrap items-center justify-between">
@@ -252,7 +281,7 @@ export default function LoginPage() {
               </div>
               <p className="rounded-xl border-2 border-soleil bg-soleil/25 px-4 py-3 text-sm font-semibold text-nuit">Pas de message ? Regardez dans votre dossier spam.</p>
               <form onSubmit={submitEmailCode} className="grid gap-4">
-                <input {...codeFieldProps} className={codeInput} />
+                <CodeInput />
                 <button disabled={busy} className={primary}>{busy ? 'Vérification…' : 'Confirmer'}</button>
               </form>
               <div className="flex flex-wrap items-center justify-between">
@@ -271,7 +300,7 @@ export default function LoginPage() {
                 <p className={`${sub} mt-1`}>Ouvrez votre application d’authentification (Google Authenticator, Authy…) et saisissez le code à 6 chiffres affiché pour Kitala.</p>
               </div>
               <form onSubmit={submitMfa} className="grid gap-4">
-                <input {...codeFieldProps} className={codeInput} />
+                <CodeInput />
                 <button disabled={busy} className={primary}>{busy ? 'Vérification…' : 'Valider'}</button>
               </form>
               <button onClick={cancelMfa} className={link}>Annuler et me déconnecter</button>
