@@ -1,11 +1,12 @@
 'use client';
-import { useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { createOrderAction } from '@/actions/orders';
 import { formatFCFA } from '@/lib/utils';
 import { useCart } from './cart-provider';
 import { WhatsAppIcon } from './icons';
+import { QUARTIERS_PAR_DEFAUT, matchQuartier, type QuartierGroups } from '@/lib/quartiers';
 
-const QUARTIERS = ['Poto-Poto', 'Bacongo', 'Moungali', 'Ouenzé', 'Talangaï', 'Makélékélé', 'Mfilou', 'Madibou', 'Djiri', 'Plateau des 15 ans', 'Centre-ville'];
+const AUTRE = '__autre';
 
 export function CheckoutForm({ storeId, slug, onBack }: { storeId: string; slug: string; onBack: () => void }) {
   const { lines, total, clear } = useCart();
@@ -14,8 +15,14 @@ export function CheckoutForm({ storeId, slug, onBack }: { storeId: string; slug:
   const [geo, setGeo] = useState<'idle' | 'loading' | 'ok' | 'error'>('idle');
   const [geoMsg, setGeoMsg] = useState<string | null>(null);
   const position = useRef<{ lat: number; lng: number } | undefined>(undefined);
-  const quartierRef = useRef<HTMLInputElement>(null);
+  const [groups, setGroups] = useState<QuartierGroups>(QUARTIERS_PAR_DEFAUT);
+  const [choice, setChoice] = useState(''); // « Ville|Quartier » choisi dans la liste, ou AUTRE
+  const [autre, setAutre] = useState('');
   const adresseRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch('/api/quartiers').then((r) => r.json()).then((d: { groups?: QuartierGroups }) => { if (d.groups && Object.keys(d.groups).length) setGroups(d.groups); }).catch(() => {});
+  }, []);
 
   function locate() {
     if (!('geolocation' in navigator)) { setGeo('error'); setGeoMsg('Votre téléphone ne permet pas la localisation. Tapez votre quartier.'); return; }
@@ -28,7 +35,8 @@ export function CheckoutForm({ storeId, slug, onBack }: { storeId: string; slug:
           const res = await fetch(`/api/quartier?lat=${lat}&lng=${lng}`);
           const d = (await res.json()) as { quartier?: string; ville?: string; rue?: string };
           if (!res.ok || !d.quartier) throw new Error();
-          if (quartierRef.current) quartierRef.current.value = d.quartier;
+          const m = matchQuartier(groups, d.quartier, d.ville);
+          if (m) { setChoice(`${m.ville}|${m.nom}`); setAutre(''); } else { setChoice(AUTRE); setAutre(d.quartier); }
           if (adresseRef.current && d.rue && !adresseRef.current.value) adresseRef.current.value = d.rue;
           setGeo('ok'); setGeoMsg(`Quartier détecté : ${d.quartier}${d.ville ? ` (${d.ville})` : ''}. Corrigez-le si besoin.`);
         } catch {
@@ -46,7 +54,8 @@ export function CheckoutForm({ storeId, slug, onBack }: { storeId: string; slug:
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const quartier = String(fd.get('quartier')).trim();
+    const quartier = (choice === AUTRE ? autre : choice.split('|')[1] ?? '').trim();
+    if (quartier.length < 2) return setError('Choisissez votre quartier dans la liste.');
     const adresse = String(fd.get('adresse')).trim();
     const lieu = (adresse ? `${quartier} — ${adresse}` : quartier).slice(0, 120);
     setError(null);
@@ -71,8 +80,14 @@ export function CheckoutForm({ storeId, slug, onBack }: { storeId: string; slug:
         <input name="telephone" required type="tel" inputMode="tel" autoComplete="tel" className={field} placeholder="+242 06 123 45 67" /></label>
       <div className="grid gap-1 text-sm font-medium text-k-text">
         <label htmlFor="quartier">Quartier de livraison</label>
-        <input id="quartier" ref={quartierRef} name="quartier" list="quartiers" required minLength={2} className={field} placeholder="Choisissez ou tapez votre quartier" />
-        <datalist id="quartiers">{QUARTIERS.map((q) => <option key={q} value={q} />)}</datalist>
+        <select id="quartier" value={choice} onChange={(e) => setChoice(e.target.value)} required className={field}>
+          <option value="" disabled>Choisissez votre quartier</option>
+          {Object.entries(groups).map(([ville, noms]) => (
+            <optgroup key={ville} label={ville}>{noms.map((n) => <option key={`${ville}|${n}`} value={`${ville}|${n}`}>{n}</option>)}</optgroup>
+          ))}
+          <option value={AUTRE}>Autre quartier (je le tape)…</option>
+        </select>
+        {choice === AUTRE && <input value={autre} onChange={(e) => setAutre(e.target.value)} required minLength={2} maxLength={60} autoComplete="off" className={field} placeholder="Écrivez votre quartier" />}
         <button type="button" onClick={locate} disabled={geo === 'loading'} className="min-h-11 rounded-k border border-k-line px-3 text-sm font-semibold text-k-text disabled:opacity-60">
           {geo === 'loading' ? 'Localisation…' : '📍 Utiliser ma position'}
         </button>
